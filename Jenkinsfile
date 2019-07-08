@@ -53,11 +53,11 @@ podTemplate(
     stage('Build') {
       environment {
         TAG = "${gitSHA}"
-        registry = "docker.io/azimuth3d/flaskapp"
-        registryCredential = ‘dockerhub’
       }
         container('docker') {
-          sh "docker build . -t ${registry}:${TAG}"
+          withEnv([registry = "docker.io/azimuth3d/flaskapp", registryCredential = ‘dockerhub’]) {
+            sh "docker build . -t ${env.registry}:${env.TAG}"
+          }
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
           }
