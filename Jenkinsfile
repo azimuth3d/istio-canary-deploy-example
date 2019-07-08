@@ -32,7 +32,7 @@ podTemplate(
 ) {
   node("mypod") {
     // replace  "your_repo"  to your docker repo name 
-     environment {
+    environment {
      registry = "docker.io/azimuth3d/flaskapp"
      registryCredential = ‘dockerhub’
     }
@@ -47,17 +47,18 @@ podTemplate(
           sh 'pip install -r requirements.txt'
         }
     }
-    stage('Test') {
+  /*    stage('Test') {
         container('python') {
           sh 'pytest'
         }
     }
+    */
     stage('Build') {
       environment {
         TAG = "$gitSHA"
       }
         container('docker') {
-          sh 'docker build . -t "$registry":"$TAG"'
+          sh 'docker build . -t ${env.registry}:${TAG}'
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
           }
