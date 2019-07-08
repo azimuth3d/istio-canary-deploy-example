@@ -30,14 +30,12 @@ podTemplate(
         )
     ]
 ) {
-  node("pods") {
+  node("mypod") {
     // replace  "your_repo"  to your docker repo name 
      environment {
      registry = "docker.io/azimuth3d/flaskapp"
      registryCredential = ‘dockerhub’
     }
-
-  stages {
     stage('Checkout') {
       steps {
         checkout scm
@@ -47,53 +45,41 @@ podTemplate(
       }
     }
     stage('Install') {
-      steps {
         container('python') {
           sh 'pip install -r requirements.txt'
         }
-      }
     }
     stage('Test') {
-      steps {
         container('python') {
           sh 'pytest'
         }
-      }
     }
     stage('Build') {
       environment {
         TAG = "$gitSHA"
       }
-      steps {
         container('docker') {
           docker.build registry + ":$TAG"
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
           }
         }
-      }
     }
     stage('Deploy Canary') {
       when { branch 'canary' }
-      steps {
         container('kubectl') {
           sh "export TAG=$gitSHA" + 'envsubst < deployment/canary.yaml | kubectl apply -f -'
           sh "export PROD_WEIGHT=95 CANARY_WEIGHT=5" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
         }
-      }
     }
     stage('Deploy Production') {
       when { branch 'master' }
-      steps {
+     
         container('kubectl') {
           sh "export TAG=$gitSHA" + 'envsubst < deployment/prod.yaml | kubectl apply -f -'
           sh "export PROD_WEIGHT=100 CANARY_WEIGHT=0" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
         }
-      }
     }
-  }
-
-
   }
 }
   
