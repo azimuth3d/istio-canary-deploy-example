@@ -32,10 +32,7 @@ podTemplate(
 ) {
   node("mypod") {
     // replace  "your_repo"  to your docker repo name 
-    environment {
-     registry = "docker.io/azimuth3d/flaskapp"
-     registryCredential = ‘dockerhub’
-    }
+   
     stage('Checkout') {
         checkout scm
         script {
@@ -56,9 +53,11 @@ podTemplate(
     stage('Build') {
       environment {
         TAG = "${gitSHA}"
+        registry = "docker.io/azimuth3d/flaskapp"
+        registryCredential = ‘dockerhub’
       }
         container('docker') {
-          sh "docker build . -t ${env.registry}:${env.TAG}"
+          sh "docker build . -t ${registry}:${TAG}"
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
           }
