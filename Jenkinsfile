@@ -1,5 +1,5 @@
 def gitSHA
-def image = "docker.io/azimuth3d/flaskapp:{env.BUILD_ID}"
+def image = "docker.io/azimuth3d/flaskapp:${env.BUILD_ID}"
 
 podTemplate(
     label: 'mypod', 
