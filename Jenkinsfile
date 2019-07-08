@@ -73,7 +73,7 @@ podTemplate(
             case 'master':
                 container('kubectl') {
                      sh 'apk update && apk add gettext'
-                     sh "export TAG=$gitSHA"
+                     sh "export TAG='$gitSHA'"
                      sh 'envsubst < deployment/prod.yaml | kubectl apply -f -'
                      sh "export PROD_WEIGHT=100 CANARY_WEIGHT=0"
                      sh 'envsubst < deployment/istio.yaml | kubectl apply -f -'
@@ -81,7 +81,7 @@ podTemplate(
             case 'canary':
                   container('kubectl') {
                        sh 'apk update && apk add gettext'
-                       sh "export TAG=$gitSHA" + 'envsubst < deployment/canary.yaml | kubectl apply -f -'
+                       sh "export TAG='$gitSHA'" + 'envsubst < deployment/canary.yaml | kubectl apply -f -'
                        sh "export PROD_WEIGHT=80 CANARY_WEIGHT=20" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
                   }    
           }
