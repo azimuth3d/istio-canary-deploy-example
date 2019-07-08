@@ -36,7 +36,7 @@ podTemplate(
     stage('Checkout') {
         checkout scm
         script {
-         // gitSHA = sh(returnStdout: true, script: 'git rev-parse --short HEAD')
+          gitSHA = sh(returnStdout: true, script: 'git rev-parse --short HEAD')
         }
     }
     stage('Install') {
