@@ -1,6 +1,6 @@
 def gitSHA
 def image = "docker.io/azimuth3d/flaskapp:${env.BRANCH_NAME}-${env.BUILD_ID}"
-def tag = "${env.BUILD_ID}"
+
 podTemplate(
     label: 'mypod', 
     inheritFrom: 'default',
@@ -73,7 +73,7 @@ podTemplate(
             case 'master':
                 container('kubectl') {
                      sh 'apk update && apk add gettext'
-                     sh "export TAG=$tag"
+                     sh "export TAG=$gitSHA"
                      sh 'envsubst < deployment/prod.yaml | kubectl apply -f -'
                      sh "export PROD_WEIGHT=100 CANARY_WEIGHT=0"
                      sh 'envsubst < deployment/istio.yaml | kubectl apply -f -'
