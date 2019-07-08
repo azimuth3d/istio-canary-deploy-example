@@ -52,7 +52,7 @@ podTemplate(
     */
     stage('Build') {
        container('docker') {
-        sh "docker build --no-cache -t ${image} ."
+        sh "docker build --no-cache -t flaskapp:latest ."
       }
     }
 
@@ -62,6 +62,7 @@ podTemplate(
             sh '''
             echo ${DOCKER_PASSWD} | docker login -u ${DOCKER_USER} --password-stdin
               '''
+            sh "docker tag ${image} flaskapp:latest"
             sh "docker push ${image} && docker rmi ${image}"    
           }
         }
@@ -77,7 +78,6 @@ podTemplate(
     }
     stage('Deploy Production') {
       when { branch 'master' }
-     
         container('kubectl') {
           sh 'apk update && apk add gettext'
           sh "export TAG=$gitSHA" + 'envsubst < deployment/prod.yaml | kubectl apply -f -'
