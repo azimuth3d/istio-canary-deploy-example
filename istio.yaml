@@ -1,0 +1,60 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: flaskapp-gateway
+spec:
+  selector:
+    istio: ingressgateway
+  servers:
+    - port:
+        number: 80
+        name: http
+        protocol: HTTP
+      hosts:
+        - '*'
+---
+
+apiVersion: networking.istio./v1alpha3
+kind: VirtualService
+metadata:
+  name: flaskapp-virtualservice
+spec:
+  hosts:
+  - "*"
+  gateways:
+  - flaskapp-gateway
+  http:
+  - match:
+   - url:
+      prefix: /
+    route:
+    - destination:
+        host: flaskapp
+        subset: prod 
+        port:
+          number: 8080
+      weight: $PROD_WEIGHT
+    - destination: 
+        host: flaskapp
+        subset: canary
+        port:
+          number: 8080
+      weight: $CANARY_WEIGHT
+---
+
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule 
+metadata:
+  name: flaskapp
+spec: 
+  host: flaskapp
+  subsets:
+  - name: prod
+    labels:
+      version: prod
+  - name: canary
+    labels:
+      version: canary
+  
+
+  

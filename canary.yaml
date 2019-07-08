@@ -1,0 +1,15 @@
+apiVersion: apps/v1
+kind: Deployment
+  metadata:
+name: flaskapp-canary
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: flaskapp
+    spec:
+      containers:
+      - name: sampleapp
+        image: docker.io/azimuth3d/flaskapp:canary
+        imagePullPolicy: Always
