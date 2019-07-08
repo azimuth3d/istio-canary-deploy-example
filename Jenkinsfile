@@ -73,8 +73,10 @@ podTemplate(
             case 'master':
                 container('kubectl') {
                      sh 'apk update && apk add gettext'
-                     sh "export TAG=$tag" + 'envsubst < deployment/prod.yaml | kubectl apply -f -'
-                     sh "export PROD_WEIGHT=100 CANARY_WEIGHT=0" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
+                     sh "export TAG=$tag"
+                     sh 'envsubst < deployment/prod.yaml | kubectl apply -f -'
+                     sh "export PROD_WEIGHT=100 CANARY_WEIGHT=0"
+                     sh 'envsubst < deployment/istio.yaml | kubectl apply -f -'
                 }
             case 'canary':
                   container('kubectl') {
