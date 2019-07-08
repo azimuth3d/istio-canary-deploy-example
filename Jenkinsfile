@@ -55,10 +55,10 @@ podTemplate(
     */
     stage('Build') {
       environment {
-        TAG = "$gitSHA"
+        TAG = "${gitSHA}"
       }
         container('docker') {
-          sh 'docker build . -t ${env.registry}:${TAG}'
+          sh "docker build . -t ${env.registry}:${env.TAG}"
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
           }
