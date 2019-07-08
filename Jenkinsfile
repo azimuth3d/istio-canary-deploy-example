@@ -1,4 +1,5 @@
 def gitSHA
+def app
 
 podTemplate(
     label: 'mypod', 
@@ -18,7 +19,7 @@ podTemplate(
         ),
         containerTemplate(
             name: 'kubectl', 
-            image: 'gcr.io/cloud-builders/kubectl',
+            image: 'amaceog/kubectl',
             ttyEnabled: true,
             command: 'cat'
         )
@@ -31,8 +32,7 @@ podTemplate(
     ]
 ) {
   node("mypod") {
-    // replace  "your_repo"  to your docker repo name 
-   
+
     stage('Checkout') {
         checkout scm
         script {
@@ -51,21 +51,26 @@ podTemplate(
     }
     */
     stage('Build') {
-      environment {
-        TAG = "${gitSHA}"
+       container('docker') {
+        sh "docker build --no-cache -t ${image} ."
       }
-        container('docker') {
-          withEnv([registry = "docker.io/azimuth3d/flaskapp", registryCredential = ‘dockerhub’]) {
-            sh "docker build . -t ${env.registry}:${env.TAG}"
-          }
-          docker.withRegistry( '', registryCredential ) {
-            dockerImage.push()
+    }
+
+    stage('Push Image') {
+       withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWD', usernameVariable: 'DOCKER_USER')]) {
+          container('docker') {
+            sh '''
+            echo ${DOCKER_PASSWD} | docker login -u ${DOCKER_USER} --password-stdin
+              '''
+            sh "docker push ${image} && docker rmi ${image}"    
           }
         }
     }
+
     stage('Deploy Canary') {
       when { branch 'canary' }
         container('kubectl') {
+          sh 'apk update && apk add gettext'
           sh "export TAG=$gitSHA" + 'envsubst < deployment/canary.yaml | kubectl apply -f -'
           sh "export PROD_WEIGHT=95 CANARY_WEIGHT=5" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
         }
@@ -74,6 +79,7 @@ podTemplate(
       when { branch 'master' }
      
         container('kubectl') {
+          sh 'apk update && apk add gettext'
           sh "export TAG=$gitSHA" + 'envsubst < deployment/prod.yaml | kubectl apply -f -'
           sh "export PROD_WEIGHT=100 CANARY_WEIGHT=0" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
         }

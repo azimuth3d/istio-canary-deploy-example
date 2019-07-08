@@ -16,5 +16,5 @@ spec:
     spec:
       containers:
         - name: sampleapp
-          image: docker.io/azimuth3d/flaskapp:canary
+          image: docker.io/azimuth3d/flaskapp:canary:${TAG}
           imagePullPolicy: Always
