@@ -88,7 +88,7 @@ podTemplate(
       when { branch 'master' }
       steps {
         container('kubectl') {
-          sh "export TAG=$gitSHA" + 'envsubst < deployment/app.yaml | kubectl apply -f -'
+          sh "export TAG=$gitSHA" + 'envsubst < deployment/prod.yaml | kubectl apply -f -'
           sh "export PROD_WEIGHT=100 CANARY_WEIGHT=0" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
         }
       }
