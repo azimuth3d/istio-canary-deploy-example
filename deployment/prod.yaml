@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
-  metadata:
-    name: flaskapp
+metadata:
+  name: flaskapp
 spec:
   replicas: 1
   selector:
@@ -15,9 +15,9 @@ spec:
         version: prod
     spec:
       containers:
-      - name: flaskapp
-        image: docker.io/azimuth3d/flaskapp:prod-${TAG}
-        imagePullPolicy: Always
+        - name: flaskapp
+          image: docker.io/azimuth3d/flaskapp:prod-${TAG}
+          imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
@@ -25,7 +25,7 @@ metadata:
   name: flaskapp
 spec:
   ports:
-  - port: 8080
-    type: http
+    - port: 8080
+      name: http
   selector:
     app: flaskapp
