@@ -68,22 +68,23 @@ podTemplate(
         }
     }
 
-    stage('Deploy Canary') {
-      when { branch 'canary' }
-        container('kubectl') {
-          sh 'apk update && apk add gettext'
-          sh "export TAG=$gitSHA" + 'envsubst < deployment/canary.yaml | kubectl apply -f -'
-          sh "export PROD_WEIGHT=95 CANARY_WEIGHT=5" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
+    stage('Deploy') {
+          switch(env.BRANCH_NAME) {
+            case 'master':
+                container('kubectl') {
+                     sh 'apk update && apk add gettext'
+                     sh "export TAG=$gitSHA" + 'envsubst < deployment/prod.yaml | kubectl apply -f -'
+                     sh "export PROD_WEIGHT=100 CANARY_WEIGHT=0" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
+                }
+            case 'canary':
+                  container('kubectl') {
+                       sh 'apk update && apk add gettext'
+                       sh "export TAG=$gitSHA" + 'envsubst < deployment/canary.yaml | kubectl apply -f -'
+                       sh "export PROD_WEIGHT=80 CANARY_WEIGHT=20" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
+                  }    
+          }
+         
         }
-    }
-    stage('Deploy Production') {
-      when { branch 'master' }
-        container('kubectl') {
-          sh 'apk update && apk add gettext'
-          sh "export TAG=$gitSHA" + 'envsubst < deployment/prod.yaml | kubectl apply -f -'
-          sh "export PROD_WEIGHT=100 CANARY_WEIGHT=0" + 'envsubst < deployment/istio.yaml | kubectl apply -f -'
-        }
-    }
   }
 }
   
