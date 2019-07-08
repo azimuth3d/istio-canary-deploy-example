@@ -29,12 +29,13 @@ podTemplate(
             mountPath: '/var/run/docker.sock'
         )
     ]
-)
-  // replace  "your_repo"  to your docker repo name 
-  environment {
-    registry = "docker.io/azimuth3d/flaskapp"
-    registryCredential = ‘dockerhub’
-  }
+) {
+  node("pods") {
+    // replace  "your_repo"  to your docker repo name 
+     environment {
+     registry = "docker.io/azimuth3d/flaskapp"
+     registryCredential = ‘dockerhub’
+    }
 
   stages {
     stage('Checkout') {
@@ -65,9 +66,6 @@ podTemplate(
       }
       steps {
         container('docker') {
-      /*    sh 'docker login -u token -p ${REGISTRY_TOKEN} docker.io'
-          sh 'docker build -t $IMAGE_REGISTRY/flaskapp:$TAG .'
-          sh 'docker push $IMAGE_REGISTRY/flaskapp:$TAG' */
           docker.build registry + ":$TAG"
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
@@ -94,4 +92,8 @@ podTemplate(
       }
     }
   }
+
+
+  }
 }
+  
