@@ -57,7 +57,7 @@ podTemplate(
         TAG = "$gitSHA"
       }
         container('docker') {
-          docker.build registry + ":$TAG"
+          sh 'docker build . -t "$registry":"$TAG"'
           docker.withRegistry( '', registryCredential ) {
             dockerImage.push()
           }
