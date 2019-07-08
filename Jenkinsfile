@@ -62,7 +62,7 @@ podTemplate(
             sh '''
             echo ${DOCKER_PASSWD} | docker login -u ${DOCKER_USER} --password-stdin
               '''
-            sh "docker tag ${image} flaskapp:latest"
+            sh "docker tag flaskapp:latest  ${image}"
             sh "docker push ${image} && docker rmi ${image}"    
           }
         }
