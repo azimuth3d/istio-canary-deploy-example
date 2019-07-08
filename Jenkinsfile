@@ -37,12 +37,10 @@ podTemplate(
      registryCredential = ‘dockerhub’
     }
     stage('Checkout') {
-      steps {
         checkout scm
         script {
           gitSHA = sh(returnStdout: true, script: 'git rev-parse --short HEAD')
         }
-      }
     }
     stage('Install') {
         container('python') {
