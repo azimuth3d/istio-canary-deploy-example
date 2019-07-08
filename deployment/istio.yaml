@@ -25,7 +25,7 @@ spec:
   - flaskapp-gateway
   http:
   - match:
-   - url:
+   - uri:
       prefix: /
     route:
     - destination:
@@ -33,13 +33,13 @@ spec:
         subset: prod 
         port:
           number: 8080
-      weight: ${PROD_WEIGHT}
+      weight: $PROD_WEIGHT
     - destination: 
         host: flaskapp
         subset: canary
         port:
           number: 8080
-      weight: ${CANARY_WEIGHT}
+      weight: $CANARY_WEIGHT
 ---
 
 apiVersion: networking.istio.io/v1alpha3
